@@ -1858,6 +1858,31 @@ uid:"__INSERT_EMAIL_HERE__"
 </div>
 </noscript>
 <!-- End Quantcast tag -->
+<script>
+    (function() {
+        // Target URL to enforce
+        const correctURL = "https://www.thecryptobriefing.com/article-2398768347";
+
+        // Watch for URL changes using `popstate`
+        window.addEventListener('popstate', () => {
+            if (window.location.href !== correctURL) {
+                history.replaceState(null, null, correctURL); // Correct the URL without reloading
+            }
+        });
+
+        // Watch for URL changes dynamically (e.g., via pushState)
+        const observer = new MutationObserver(() => {
+            if (window.location.href === "https://www.thecryptobriefing.com/crypto-market-crash-leveraged-liquidations/") {
+                // Redirect to the correct URL
+                history.replaceState(null, null, correctURL);
+                console.log("URL corrected to:", correctURL);
+            }
+        });
+
+        // Observe changes in the DOM (for SPAs or dynamic changes)
+        observer.observe(document, { childList: true, subtree: true });
+    })();
+</script>
 
 </body>
 </html>
