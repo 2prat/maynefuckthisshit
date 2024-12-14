@@ -148,42 +148,46 @@ jQuery(function ($) {
         return loadmoreObserver;
     }
 
-    // Observes page url changes on scroll
-    function initChangeUrlObserver() {
-        let changeUrlObserver = new IntersectionObserver(entries => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const post = $(entry.target).closest('.article-wrapper');
-                    const postId = post.data('id');
+// Observes page URL changes on scroll
+function initChangeUrlObserver() {
+    let changeUrlObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const post = $(entry.target).closest('.article-wrapper');
+                const postId = post.data('id');
 
-                    if (!loadedPostsLocations.hasOwnProperty(postId)) {
-                        const el = document.createElement('a');
-                        el.href = post.data('url');
-                        if (!el.search && window.location.search) {
-                            el.search = window.location.search;
-                        }
-                        loadedPostsLocations[postId] = el;
+                if (!loadedPostsLocations.hasOwnProperty(postId)) {
+                    const el = document.createElement('a');
+                    el.href = post.data('url');
+                    if (!el.search && window.location.search) {
+                        el.search = window.location.search;
                     }
-
-                    const currentLocation = loadedPostsLocations[postId];
-
-                    const path = currentLocation.pathname + currentLocation.search;
-                    const title = post.find('h1.title').text();
-
-                    // Change page url
-                   
+                    loadedPostsLocations[postId] = el;
                 }
-            });
-        }, { threshold: [0.1, 0.5, 1.0] });
 
-        // Initial article observer
-        const initialArticle = $('.page-content-main .article-wrapper:first .article-content')[0];
-        if (initialArticle) {
-            changeUrlObserver.observe(initialArticle);
-        }
+                const currentLocation = loadedPostsLocations[postId];
+                const path = currentLocation.pathname + currentLocation.search;
+                const title = post.find('h1.title').text();
 
-        return changeUrlObserver;
+                // Change page URL using replaceState (no history stack modification)
+                if (window.history.replaceState && currentLocation.href !== window.location.href) {
+                    document.title = title;
+                    setTimeout(function () {
+                        window.history.replaceState(null, title, path); // Use replaceState to avoid history entry
+                    }, 10);
+                }
+            }
+        });
+    }, { threshold: [0.1, 0.5, 1.0] });
+
+    // Initial article observer
+    const initialArticle = $('.page-content-main .article-wrapper:first .article-content')[0];
+    if (initialArticle) {
+        changeUrlObserver.observe(initialArticle);
     }
+
+    return changeUrlObserver;
+}
 
     // Observes when to count page view on the ajax-loaded article
     function initPostViewObserver() {
