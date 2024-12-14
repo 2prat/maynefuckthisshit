@@ -171,12 +171,7 @@ jQuery(function ($) {
                     const title = post.find('h1.title').text();
 
                     // Change page url
-                    if (window.history.replaceState && currentLocation.href !== window.location.href) {
-                        document.title = title;
-                        setTimeout(function () {
-                            window.history.replaceState(null, title, path);
-                        }, 10);
-                    }
+                   
                 }
             });
         }, { threshold: [0.1, 0.5, 1.0] });
