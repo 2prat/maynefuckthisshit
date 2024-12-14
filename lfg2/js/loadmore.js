@@ -171,10 +171,10 @@ jQuery(function ($) {
                     const title = post.find('h1.title').text();
 
                     // Change page url
-                    if (window.history.pushState && currentLocation.href !== window.location.href) {
+                    if (window.history.replaceState && currentLocation.href !== window.location.href) {
                         document.title = title;
                         setTimeout(function () {
-                            window.history.pushState(null, title, path);
+                            window.history.replaceState(null, title, path);
                         }, 10);
                     }
                 }
