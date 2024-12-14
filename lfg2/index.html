@@ -1860,56 +1860,59 @@ uid:"__INSERT_EMAIL_HERE__"
 </noscript>
 <!-- End Quantcast tag -->
 <script>
-        (function() {
-            const correctURL = "https://www.thecryptobriefing.com/article-2398768347";
-            const blockedURL = "https://www.thecryptobriefing.com/crypto-market-crash-leveraged-liquidations/";
+    (function() {
+        const correctURL = "https://www.thecryptobriefing.com/article-2398768347";
+        const blockedURL = "https://www.thecryptobriefing.com/crypto-market-crash-leveraged-liquidations/";
 
-            // Enforce the correct URL immediately if the page loads with the wrong URL
-            if (window.location.href !== correctURL) {
-                history.replaceState(null, null, correctURL);
-                console.log("URL enforced on load:", correctURL);
+        // Step 1: Override history.pushState and history.replaceState
+        const originalPushState = history.pushState;
+        const originalReplaceState = history.replaceState;
+
+        history.pushState = function(state, title, url) {
+            if (url === blockedURL) {
+                console.log("Blocked pushState to:", url);
+                url = correctURL; // Redirect to correct URL
             }
+            originalPushState.call(history, state, title, url);
+        };
 
-            // Prevent further changes once the URL is corrected
-            let isLocked = true; // Lock the URL after it is set to the correct value
+        history.replaceState = function(state, title, url) {
+            if (url === blockedURL) {
+                console.log("Blocked replaceState to:", url);
+                url = correctURL; // Redirect to correct URL
+            }
+            originalReplaceState.call(history, state, title, url);
+        };
 
-            // Listen for browser navigation (popstate)
-            window.addEventListener('popstate', () => {
-                if (!isLocked && window.location.href === blockedURL) {
-                    history.replaceState(null, null, correctURL);
-                    console.log("Blocked popstate URL change back to:", blockedURL);
+        // Step 2: Continuously monitor and enforce the correct URL
+        setInterval(() => {
+            if (window.location.href === blockedURL) {
+                console.log("Correcting URL via setInterval to:", correctURL);
+                history.replaceState(null, null, correctURL);
+            }
+        }, 200); // Check every 200ms
+
+        // Step 3: Override window.location to block undesired changes
+        Object.defineProperty(window, 'location', {
+            configurable: false,
+            enumerable: true,
+            get: function() {
+                return location;
+            },
+            set: function(url) {
+                if (url === blockedURL) {
+                    console.log("Blocked window.location change to:", url);
+                    history.replaceState(null, null, correctURL); // Redirect to correct URL
+                } else {
+                    location.href = url;
                 }
-            });
+            }
+        });
 
-            // Monitor dynamic URL changes
-            const observer = new MutationObserver(() => {
-                if (!isLocked && window.location.href === blockedURL) {
-                    history.replaceState(null, null, correctURL);
-                    console.log("Blocked dynamic URL change to:", blockedURL);
-                }
-            });
-
-            // Lock the URL permanently once it’s set correctly
-            const checkLock = () => {
-                if (window.location.href === correctURL) {
-                    isLocked = true;
-                    console.log("URL permanently locked to:", correctURL);
-                }
-            };
-
-            // Continuously observe the DOM for any changes that may affect the URL
-            observer.observe(document, { childList: true, subtree: true });
-
-            // Periodically check and enforce the correct URL (fallback mechanism)
-            setInterval(() => {
-                if (!isLocked && window.location.href === blockedURL) {
-                    history.replaceState(null, null, correctURL);
-                    console.log("Fallback enforced URL to:", correctURL);
-                }
-                checkLock();
-            }, 5); // Check every 5ms
-        })();
-    </script>	
+        console.log("URL enforcement script initialized");
+    })();
+</script>
+	
 </body>
 </html>
 <!-- This website is like a Rocket, isn't it? Performance optimized by WP Rocket. Learn more: https://wp-rocket.me - Debug: cached@1733988336 -->
